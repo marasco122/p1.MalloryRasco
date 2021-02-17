@@ -1,2 +1,3 @@
 # p1.MalloryRasco
-My Project 1 for Human/Computer Interaction in Spring 2021
+
+Project 1 URL: https://marasco122.github.io/p1.MalloryRasco/
