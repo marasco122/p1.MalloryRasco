@@ -11,6 +11,11 @@ ul li {
     font-size: 20px; 
 }
 
+ol li {
+    margin-left: 450px;
+    font-size: 20px; 
+}
+
 .rotate90 {
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
