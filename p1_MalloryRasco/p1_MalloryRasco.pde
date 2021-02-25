@@ -1,16 +1,29 @@
 import controlP5.*;
+import processing.sound.*;
 
 ControlP5 cp5;
+SoundFile buttonBeep;
+SoundFile endBeep;
+
 
 
 Button[] digits = new Button[10];
 int[] time = {-1,-1,-1,-1};
+
+boolean countdown = false;
+float lasttimecheck;
+float timeinterval;
+int sec;
+
 
 void setup() {
   size(500, 700);
   background(0);
   
   cp5 = new ControlP5(this);
+  
+  buttonBeep = new SoundFile(this, "buttonBeep.wav");
+  endBeep = new SoundFile(this, "endBeep.wav");
   
   fill(255);
   PFont font=createFont("Times New Roman",30);
@@ -49,10 +62,11 @@ void setup() {
 
 void draw() {
   stroke(0);
-  fill(0);
-  rect(0,0,500,48);
+  fill(00);
   
-  rect(450,195,50,35);
+  //reset date/time and timer screens
+  rect(0,0,500,48);
+  rect(120,62,500,76);
   
   stroke(255);
   fill(255);
@@ -92,6 +106,20 @@ void draw() {
   line(337,593,337,685);
   
   
+  if(countdown == true) {
+    if(time[0] > 0 || time[1] > 0 || time[2] > 0 || time[3] > 0) {
+      countdownCal();
+    }
+    else {
+      for(int g = 0; g<4; g++) {
+        time[g] = -1;
+      }
+      endBeep.play();      
+      countdown = false;
+    }
+  }
+  
+  
   PFont font=createFont("Times New Roman",45);
   textFont(font);
   
@@ -127,7 +155,7 @@ void draw() {
 
   //display date and time
   text(date,30,45);
-  text(timeC,285,45);
+  text(timeC,300,45);
   
   font = createFont("Times New Roman",35);
   textFont(font);
@@ -136,18 +164,99 @@ void draw() {
   text("Timer",25,600);
   text("Start",215,587);
   text("Cancel",380,600);
+    
   
+  font = createFont("Times New Roman", 85);
+  textFont(font);
+  
+  
+  if(time[0] >= 0) {   
+  
+    text(":",250,125);
+    int coordinate = 350;
+    for(int data = 3; data>=0; data--) {
+    
+      if(time[data]>=0) {
+        text(String.valueOf(time[data]),coordinate,135); 
+        
+        coordinate = coordinate - 70; 
+      }        
+    }
+  }
+  else {
+    text("Hello",150,135);
+  }
+  
+}
+
+void countdownCal() {
+  
+  println("got to function");
+  println("sec:"+sec);
+  
+  
+  timeinterval = 1000;
+      
+      
+  if(millis() > lasttimecheck + timeinterval) {
+    lasttimecheck = millis();
+           
+     if(time[sec] > 0) {
+       time[sec]--;
+     }
+     else {
+       if(time[sec-1] > 0) {
+         time[sec-1]--;
+         time[sec] = 9;
+       }
+       else {
+         if(time[sec-2] > 0) {
+           time[sec-2]--;
+           time[sec-1] = 5;
+           time[sec] = 9;
+         }
+         else {
+           if(time[sec-3] > 0) {
+             time[sec-3]--;
+             time[sec-2] = 9;
+             time[sec-1] = 5;
+             time[sec] = 9;
+           }
+         }
+       }
+     }
+           
+     for (int w = 3; w>=0; w--) {
+       println(time[w]);
+     }
+  } 
 }
 
 
 void controlEvent(ControlEvent theEvent) {
-  /*stroke(0);
-  fill(40);
-  rect(0,52,500,65);*/
+  buttonBeep.cue(.33);
+  buttonBeep.amp(1);
+  buttonBeep.play();
   
   switch(theEvent.getController().getName()) {
     case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "0":
-      setTime(int(theEvent.getController().getName()));
+      int t = 0;
+      while(time[t] >= 0 && t <= 3) {
+        t++;
+      }
+      time[t] = int(theEvent.getController().getName());  
+    break;
+    
+    case "back":
+      for(int j = 0; j<5; j++) {
+        if(j == 4) {
+          time[3] = -1;
+        }
+        else {
+          if(time[j] < 0 || j == 4) {
+          time[j-1] = -1; }
+        }
+      }
     break;
     
     case "timer":
@@ -156,40 +265,39 @@ void controlEvent(ControlEvent theEvent) {
       textFont(font);
   
       text("TIMER",30,140);
+      
+      stroke(0);
+      fill(0);
+      rect(120,62,500,76);
     break;
     
     case "start":
+      lasttimecheck = millis();
+      countdown = true;
+      
+      sec = 0;
+      while(sec<3 && time[sec+1] >= 0) {
+        sec++;
+      }
+      
+      if(sec == 3) {
+        if(time[sec] < 0) {
+          sec--;
+        }
+      }      
     break;
     
     case "cancel":
       stroke(0);
       fill(0);
       rect(0,52,500,96);
+      
+      endBeep.stop();
+      countdown = false;
+      
+      for(int r=0; r<4; r++) {
+        time[r]=-1;
+      }
     break;
   }  
-}
-
-void setTime(int n) {  
-  
-  stroke(255);
-  PFont font=createFont("Times New Roman",85);
-  textFont(font);
-  
-  int t = 0;
-  while(time[t] >= 0 && t <= 3) {
-    t++;
-  }
-  time[t] = n;
-  
-  text(String.valueOf(time[0]),155,135);
-  if(time[1]>=0) {
-    text(String.valueOf(time[1]),200,135); }
-  
-  text(":",250,125);
-  
-  if(time[2]>=0) {
-    text(String.valueOf(time[2]),280,135); }
-  if(time[3]>=0) {
-    text(String.valueOf(time[3]),325,135); }
-  
 }
