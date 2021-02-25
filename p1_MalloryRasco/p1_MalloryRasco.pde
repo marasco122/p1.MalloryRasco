@@ -6,11 +6,14 @@ SoundFile buttonBeep;
 SoundFile endBeep;
 
 
-
+//variables
 Button[] digits = new Button[10];
-int[] time = {-1,-1,-1,-1};
 
+PFont font;
+
+int[] time = {-1,-1,-1,-1};
 boolean countdown = false;
+boolean endDisplay = false;
 float lasttimecheck;
 float timeinterval;
 int sec;
@@ -26,11 +29,14 @@ void setup() {
   endBeep = new SoundFile(this, "endBeep.wav");
   
   fill(255);
-  PFont font=createFont("Times New Roman",30);
+  font=createFont("Times New Roman",30);
   
-  Slider powerS = (cp5.addSlider("power").setSize(400,35).setRange(0,100).setValue(100).setPosition(50,195).setFont(font))
+  Slider powerS = (cp5.addSlider("power").setSize(400,35).setRange(0,100).setNumberOfTickMarks(11).setValue(100).setPosition(50,195).setFont(font))
     .setColorBackground(color(50)).setColorForeground(color(85)).setColorActive(color(100));
   cp5.getController("power").getCaptionLabel().setVisible(false);
+  
+  PImage img = loadImage("lightning.jpg");
+  image(img, 0, 180);
   
   font = createFont("Times New Roman", 50);
   
@@ -106,6 +112,7 @@ void draw() {
   line(337,593,337,685);
   
   
+  //if timer is counting down
   if(countdown == true) {
     if(time[0] > 0 || time[1] > 0 || time[2] > 0 || time[3] > 0) {
       countdownCal();
@@ -114,13 +121,21 @@ void draw() {
       for(int g = 0; g<4; g++) {
         time[g] = -1;
       }
-      endBeep.play();      
+      
+      endDisplay = true;
+      lasttimecheck = millis();
+      endBeep.play();
+      endDisplayCal();  
       countdown = false;
     }
   }
   
+  if(endDisplay == true) {
+    endDisplayCal();
+  }
   
-  PFont font=createFont("Times New Roman",45);
+  
+  font=createFont("Times New Roman",45);
   textFont(font);
   
   int m = month();
@@ -133,7 +148,7 @@ void draw() {
   String timeC;
   String minS = String.valueOf(min);
   
-  //create correct time
+  //create correct standardized time
   if(min<=9) {
     minS = "0" + minS;
   }
@@ -169,7 +184,7 @@ void draw() {
   font = createFont("Times New Roman", 85);
   textFont(font);
   
-  
+  //print to timer screen
   if(time[0] >= 0) {   
   
     text(":",250,125);
@@ -184,53 +199,16 @@ void draw() {
     }
   }
   else {
-    text("Hello",150,135);
+    if(endDisplay == true) {
+      text("End",150,135);
+    }
+    else {
+      text("Hello",150,135);
+    }
   }
   
 }
 
-void countdownCal() {
-  
-  println("got to function");
-  println("sec:"+sec);
-  
-  
-  timeinterval = 1000;
-      
-      
-  if(millis() > lasttimecheck + timeinterval) {
-    lasttimecheck = millis();
-           
-     if(time[sec] > 0) {
-       time[sec]--;
-     }
-     else {
-       if(time[sec-1] > 0) {
-         time[sec-1]--;
-         time[sec] = 9;
-       }
-       else {
-         if(time[sec-2] > 0) {
-           time[sec-2]--;
-           time[sec-1] = 5;
-           time[sec] = 9;
-         }
-         else {
-           if(time[sec-3] > 0) {
-             time[sec-3]--;
-             time[sec-2] = 9;
-             time[sec-1] = 5;
-             time[sec] = 9;
-           }
-         }
-       }
-     }
-           
-     for (int w = 3; w>=0; w--) {
-       println(time[w]);
-     }
-  } 
-}
 
 
 void controlEvent(ControlEvent theEvent) {
@@ -261,7 +239,7 @@ void controlEvent(ControlEvent theEvent) {
     
     case "timer":
       stroke(255);
-      PFont font=createFont("Times New Roman",25);
+      font=createFont("Times New Roman",25);
       textFont(font);
   
       text("TIMER",30,140);
@@ -294,10 +272,55 @@ void controlEvent(ControlEvent theEvent) {
       
       endBeep.stop();
       countdown = false;
+      endDisplay = false;
       
       for(int r=0; r<4; r++) {
         time[r]=-1;
       }
     break;
   }  
+}
+
+
+void countdownCal() {
+  
+  timeinterval = 1000;
+      
+  if(millis() > lasttimecheck + timeinterval) {
+    lasttimecheck = millis();
+           
+    if(time[sec] > 0) {
+      time[sec]--;
+    }
+    else {
+      if(time[sec-1] > 0) {
+        time[sec-1]--;
+        time[sec] = 9;
+      }
+      else {
+        if(time[sec-2] > 0) {
+          time[sec-2]--;
+          time[sec-1] = 5;
+          time[sec] = 9;
+        }
+        else {
+          if(time[sec-3] > 0) {
+            time[sec-3]--;
+            time[sec-2] = 9;
+            time[sec-1] = 5;
+            time[sec] = 9;
+          }
+        }
+      }
+    }
+  } 
+}
+
+void endDisplayCal() {
+  timeinterval = (endBeep.duration())*1000;
+  
+  if(millis() > lasttimecheck + timeinterval) {
+    endDisplay = false;
+  }
+  
 }
