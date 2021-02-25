@@ -212,73 +212,82 @@ void draw() {
 
 
 void controlEvent(ControlEvent theEvent) {
+  
+  if(!(theEvent.getController().getName().equals("power"))) {
+    buttonBeep.cue(.33);
+    buttonBeep.amp(1);
+    buttonBeep.play();
+  
+    switch(theEvent.getController().getName()) {
+      case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "0":
+        int t = 0;
+        while(time[t] >= 0 && t <= 3) {
+          t++;
+        }
+        time[t] = int(theEvent.getController().getName());  
+      break;
+    
+      case "back":
+        for(int j = 0; j<5; j++) {
+          if(j == 4) {
+            time[3] = -1;
+          }
+          else {
+            if(time[j] < 0 || j == 4) {
+              time[j-1] = -1; }
+          }
+        }
+      break;
+    
+      case "timer":
+        stroke(255);
+        font=createFont("Times New Roman",25);
+        textFont(font);
+  
+        text("TIMER",30,140);
+      
+        stroke(0);
+        fill(0);
+        rect(120,62,500,76);
+      break;
+    
+      case "start":
+        lasttimecheck = millis();
+        countdown = true;
+      
+        sec = 0;
+        while(sec<3 && time[sec+1] >= 0) {
+          sec++;
+        }
+      
+        if(sec == 3) {
+          if(time[sec] < 0) {
+            sec--;
+          }
+        }      
+      break;
+    
+      case "cancel":
+        stroke(0);
+        fill(0);
+        rect(0,52,500,96);
+      
+        endBeep.stop();
+        countdown = false;
+        endDisplay = false;
+      
+        for(int r=0; r<4; r++) {
+          time[r]=-1;
+        }
+      break;
+    }  
+  }
+}
+
+void mouseReleased() {
   buttonBeep.cue(.33);
   buttonBeep.amp(1);
   buttonBeep.play();
-  
-  switch(theEvent.getController().getName()) {
-    case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "0":
-      int t = 0;
-      while(time[t] >= 0 && t <= 3) {
-        t++;
-      }
-      time[t] = int(theEvent.getController().getName());  
-    break;
-    
-    case "back":
-      for(int j = 0; j<5; j++) {
-        if(j == 4) {
-          time[3] = -1;
-        }
-        else {
-          if(time[j] < 0 || j == 4) {
-          time[j-1] = -1; }
-        }
-      }
-    break;
-    
-    case "timer":
-      stroke(255);
-      font=createFont("Times New Roman",25);
-      textFont(font);
-  
-      text("TIMER",30,140);
-      
-      stroke(0);
-      fill(0);
-      rect(120,62,500,76);
-    break;
-    
-    case "start":
-      lasttimecheck = millis();
-      countdown = true;
-      
-      sec = 0;
-      while(sec<3 && time[sec+1] >= 0) {
-        sec++;
-      }
-      
-      if(sec == 3) {
-        if(time[sec] < 0) {
-          sec--;
-        }
-      }      
-    break;
-    
-    case "cancel":
-      stroke(0);
-      fill(0);
-      rect(0,52,500,96);
-      
-      endBeep.stop();
-      countdown = false;
-      endDisplay = false;
-      
-      for(int r=0; r<4; r++) {
-        time[r]=-1;
-      }
-    break;
-  }  
 }
 
 
