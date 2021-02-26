@@ -12,6 +12,7 @@ Button[] digits = new Button[10];
 PFont font;
 
 int[] time = {-1,-1,-1,-1};
+boolean timerMode = false;
 boolean countdown = false;
 boolean endDisplay = false;
 float lasttimecheck;
@@ -72,7 +73,11 @@ void draw() {
   
   //reset date/time and timer screens
   rect(0,0,500,48);
-  rect(120,62,500,76);
+  rect(120,62,500,80);
+  
+  if(timerMode == false) {
+    rect(0,62,120,80);
+  };
   
   stroke(255);
   fill(255);
@@ -127,6 +132,7 @@ void draw() {
       endBeep.play();
       endDisplayCal();  
       countdown = false;
+      timerMode = false;
     }
   }
   
@@ -197,13 +203,19 @@ void draw() {
         coordinate = coordinate - 70; 
       }        
     }
+    if(time[1] <0 && time[2] <0 && time[3] <0)
+    {
+      text("0",280,135);
+    }
   }
   else {
     if(endDisplay == true) {
       text("End",150,135);
     }
     else {
-      text("Hello",150,135);
+      if(timerMode == false) {
+        text("Hello",150,135);
+      }
     }
   }
   
@@ -240,6 +252,8 @@ void controlEvent(ControlEvent theEvent) {
       break;
     
       case "timer":
+        timerMode = true;
+        
         stroke(255);
         font=createFont("Times New Roman",25);
         textFont(font);
@@ -264,7 +278,13 @@ void controlEvent(ControlEvent theEvent) {
           if(time[sec] < 0) {
             sec--;
           }
-        }      
+        }  
+        
+        if(sec == 0) {
+          time[1] = time[0];
+          time[0] = 0;
+          sec = 1;
+        }
       break;
     
       case "cancel":
@@ -275,6 +295,7 @@ void controlEvent(ControlEvent theEvent) {
         endBeep.stop();
         countdown = false;
         endDisplay = false;
+        timerMode = false;
       
         for(int r=0; r<4; r++) {
           time[r]=-1;
